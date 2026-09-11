@@ -2,32 +2,32 @@
 
 ## Implemented
 
-- repository and Ruby package bootstrap;
-- normative product/control-plane boundary;
-- provider/client isolation check for future domain/application code;
-- minimal CI for syntax, style, tests, and architecture checks.
+- Ruby package and ports/adapters boundary with correctness CI;
+- immutable, minimized mail evidence and validated half-open digest windows;
+- read-only HQBase Mail API v1 adapter using inbox summaries and OAuth bearer access;
+- cursor pagination with mailbox scope preservation, loop detection, response/page budgets;
+- deterministic newest-first selection, duplicate detection, provenance and omission counts;
+- `prism-mail.digest.v1` JSON output and a one-shot `prism-mail` executable;
+- explicit authorization, rate-limit, transport, malformed-response and incomplete-scan errors;
+- synthetic tests for source, transport, domain and executable behavior.
 
-## Next
+## Not yet verified live
 
-1. Define canonical mail evidence and source-port contracts without provider vocabulary.
-2. Implement the first read-only HQBase source adapter against its existing Mail API/MCP surface.
-3. Define the product-facing AI analysis port and integrate it through `aiaiaiai-org/artificial-intelligence` rather than a vendor SDK in application code.
-4. Produce a deterministic text digest artifact with fact/analysis provenance.
-5. Define the Prism Hub service integration contract for configuration, scheduling, and delivery.
-6. Add persistence only where a concrete recovery/audit requirement justifies retention.
+The adapter is implemented against the pinned upstream OpenAPI contract. No real
+account token was used during implementation and no production mail was read.
+A live check requires the deployed HQBase origin, a `mail:read` OAuth access token
+with the `/api/v1` audience, and an authorized mailbox ID.
 
-## Later
+## Next integration work
 
-- Gmail source adapter;
-- Proton source adapter;
-- additional remote inference providers;
-- local inference adapter;
-- narration projection and provider-neutral speech synthesis;
-- voice-message delivery through Hub-supported clients;
-- richer administration through the Prism Hub web interface.
+1. Connect the shared `artificial-intelligence` contract for analysis. Preserve the
+   extractive mode as a distinct mode; never label excerpts as model analysis.
+2. Have Prism Hub invoke the digest use case or executable, authorize the selected
+   mailbox, own token lifecycle, and consume the versioned artifact.
+3. Configure Hub scheduling and delivery and validate an end-to-end live run.
+4. Add narration and additional sources after the text path is verified.
 
-## Explicitly not implemented
-
-There is currently no live mail ingestion, AI call, scheduler, database, Prism Hub integration, Telegram/Matrix integration, speech synthesis, or production deployment. Documentation must not imply otherwise.
+No AI calls, hosted API, scheduler, persistence, Hub delivery or production
+activation are implemented by this slice. The CLI does not refresh OAuth tokens.
 
 <!-- © 2026 aiaiaiai · aiaiaiai.org -->

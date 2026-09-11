@@ -14,10 +14,16 @@ Gem::Specification.new do |spec|
   spec.metadata["rubygems_mfa_required"] = "true"
   spec.files = Dir[
     "docs/**/*",
+    "bin/*",
     "lib/**/*",
     "LICENSE",
     "NOTICE",
     "README.md"
   ]
+  spec.bindir = "bin"
+  spec.executables = ["prism-mail"]
+  spec.add_dependency "json", ">= 2.9", "< 3"
+  spec.add_dependency "net-http", ">= 0.6", "< 1"
+  spec.add_dependency "time", ">= 0.4", "< 1"
   spec.require_paths = ["lib"]
 end

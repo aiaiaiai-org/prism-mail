@@ -22,7 +22,7 @@ PROTECTED_ROOTS.each do |root_name|
   root = File.join(ROOT, "lib/prism_mail", root_name)
   next unless Dir.exist?(root)
 
-  Dir[File.join(root, "**/*.rb")].sort.each do |path|
+  Dir[File.join(root, "**/*.rb")].each do |path|
     source = File.read(path)
     relative = path.delete_prefix("#{ROOT}/")
 

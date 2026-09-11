@@ -1,9 +1,7 @@
 #!/usr/bin/env ruby
 # © 2026 aiaiaiai · aiaiaiai.org
 
-require "pathname"
-
-ROOT = Pathname(__dir__).join("..").expand_path
+ROOT = File.expand_path("..", __dir__)
 PROTECTED_ROOTS = %w[domain application ports].freeze
 VENDOR_TERMS = %w[
   anthropic
@@ -21,12 +19,12 @@ NETWORK_REQUIRES = ["net/http", "open-uri"].freeze
 violations = []
 
 PROTECTED_ROOTS.each do |root_name|
-  root = ROOT.join("lib/prism_mail", root_name)
-  next unless root.directory?
+  root = File.join(ROOT, "lib/prism_mail", root_name)
+  next unless Dir.exist?(root)
 
-  root.glob("**/*.rb").sort.each do |path|
-    source = path.read
-    relative = path.relative_path_from(ROOT)
+  Dir[File.join(root, "**/*.rb")].sort.each do |path|
+    source = File.read(path)
+    relative = path.delete_prefix("#{ROOT}/")
 
     VENDOR_TERMS.each do |term|
       next unless source.match?(/\b#{Regexp.escape(term)}\b/i)

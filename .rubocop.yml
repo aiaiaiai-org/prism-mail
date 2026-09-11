@@ -1,0 +1,14 @@
+# © 2026 aiaiaiai · aiaiaiai.org
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 4.0
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes

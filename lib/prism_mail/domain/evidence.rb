@@ -15,7 +15,7 @@ module PrismMail
         @subject = text(subject, 500)
         @sender = text(sender, 320, required: true)
         @excerpt = text(excerpt, 2000)
-        @received_at = Time.iso8601(received_at).utc.freeze
+        @received_at = timestamp(received_at)
         freeze
       rescue ArgumentError, TypeError
         raise InvalidResponse, "invalid evidence timestamp", cause: nil
@@ -31,6 +31,14 @@ module PrismMail
       end
 
       private
+
+      def timestamp(value)
+        unless value.is_a?(String) && value.match?(/(?:Z|[+-]\d{2}:\d{2})\z/)
+          raise InvalidResponse, "evidence timestamp requires an explicit UTC offset"
+        end
+
+        Time.iso8601(value).utc.freeze
+      end
 
       def validate_identity(value, limit)
         return if !value.empty? && value.length <= limit

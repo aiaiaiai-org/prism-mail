@@ -34,7 +34,7 @@ per-operation timeouts, not a total job deadline; the Hub worker should enforce
 its own execution deadline. A failed scan can be retried by Hub because it has
 no mailbox write effects, but rate-limit backoff is a Hub concern.
 
-The selected time window is `[since, before)` in UTC. The scan does not stop at an
+Timestamps require an explicit `Z` or numeric UTC offset. The selected time window is `[since, before)` in UTC. The scan does not stop at an
 old message because upstream ordering is newest *activity*, not guaranteed
 received time. Duplicate IDs with identical evidence collapse; conflicting IDs
 fail. The most recent 20 matches are selected by default, with stable ID tie

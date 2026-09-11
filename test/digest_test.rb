@@ -60,6 +60,12 @@ class DigestTest < Minitest::Test
     assert_raises(PrismMail::InvalidInput) { request(mailbox_id: " ") }
   end
 
+  def test_timestamps_require_offsets_and_normalize_to_utc
+    assert_raises(PrismMail::InvalidInput) { request(since: "2026-09-10T00:00:00") }
+    assert_raises(PrismMail::InvalidResponse) { evidence(at: "2026-09-10T12:00:00") }
+    assert_equal evidence.received_at, evidence(at: "2026-09-10T15:00:00+03:00").received_at
+  end
+
   def test_evidence_is_minimized_immutable_and_redacted
     item = evidence(excerpt: "x" * 3000)
     assert_equal 2000, item.excerpt.length

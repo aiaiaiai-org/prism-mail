@@ -1,0 +1,47 @@
+# © 2026 aiaiaiai · aiaiaiai.org
+
+name: Full CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: full-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  correctness:
+    name: Correctness
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+
+      - name: Install dependencies
+        run: bundle install --jobs 4 --retry 3
+
+      - name: Check Ruby syntax
+        run: git ls-files -z '*.rb' 'script/*' | xargs -0 -r -n1 ruby -c
+
+      - name: Check style
+        run: bundle exec rubocop
+
+      - name: Run tests
+        run: bundle exec rake test
+
+      - name: Check architecture
+        run: bundle exec rake check

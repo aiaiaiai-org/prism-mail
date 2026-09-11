@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 require "test_helper"
+require "minitest/mock"
 require "stringio"
 
 class HTTPTest < Minitest::Test

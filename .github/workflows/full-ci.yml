@@ -45,3 +45,6 @@ jobs:
 
       - name: Check architecture
         run: bundle exec rake check
+
+      - name: Validate package
+        run: gem build prism-mail.gemspec --strict

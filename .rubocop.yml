@@ -12,3 +12,13 @@ Style/FrozenStringLiteralComment:
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
+
+# Keyword-only evidence values expose explicit, self-documenting fields.
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+
+# Test scenarios keep setup and assertions together.
+Metrics/AbcSize:
+  Exclude: ["test/**/*"]
+Metrics/MethodLength:
+  Exclude: ["test/**/*"]

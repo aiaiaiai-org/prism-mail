@@ -4,7 +4,7 @@ Calm mail intelligence for the Prism ecosystem: turn inbox noise into focused, a
 
 ## Status
 
-Bootstrap. The repository defines its first architecture and Ruby package boundary, but no live mail provider, AI provider, schedule, or delivery integration is implemented yet.
+The first executable slice reads HQBase Mail API v1 inbox summaries and produces a versioned, deterministic JSON digest. It uses source excerpts, not AI-generated analysis. Live account access and Hub delivery are not yet verified.
 
 ## Responsibility
 
@@ -73,6 +73,14 @@ bundle exec rubocop
 bundle exec rake test
 bundle exec rake check
 ```
+
+## Run a read-only digest
+
+The `prism-mail` executable takes server-side configuration from the environment.
+See [`docs/running.md`](docs/running.md) for its credential contract, time window,
+limits, error behavior, and a synthetic example. It writes one JSON artifact to
+stdout only after the full bounded scan succeeds. Scheduling and delivery remain
+Hub-owned.
 
 ## License
 

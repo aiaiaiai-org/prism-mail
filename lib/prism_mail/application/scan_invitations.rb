@@ -5,7 +5,9 @@ module PrismMail
   module Application
     class ScanInvitations
       def initialize(source:, detectors: [Signals::UpworkInvitationDetector.new])
-        raise InvalidInput, "at least one invitation detector is required" unless detectors.is_a?(Array) && !detectors.empty?
+        unless detectors.is_a?(Array) && !detectors.empty?
+          raise InvalidInput, "at least one invitation detector is required"
+        end
 
         @source = source
         @detectors = detectors.dup.freeze
@@ -42,9 +44,8 @@ module PrismMail
       end
 
       def add_evidence(seen, item)
-        if seen.key?(item.id) && seen[item.id].to_h != item.to_h
-          raise InvalidResponse, "conflicting duplicate evidence"
-        end
+        conflict = seen.key?(item.id) && seen[item.id].to_h != item.to_h
+        raise InvalidResponse, "conflicting duplicate evidence" if conflict
 
         seen[item.id] = item
       end

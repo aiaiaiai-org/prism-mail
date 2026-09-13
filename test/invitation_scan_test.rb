@@ -26,7 +26,11 @@ class InvitationScanTest < Minitest::Test
 
   def scan(items, request_value: request)
     source = Object.new
-    source.define_singleton_method(:read) { |mailbox_id:| items.tap { raise "wrong mailbox" unless mailbox_id == "box" } }
+    source.define_singleton_method(:read) do |mailbox_id:|
+      raise "wrong mailbox" unless mailbox_id == "box"
+
+      items
+    end
     PrismMail::Application::ScanInvitations.new(source: source).call(request: request_value)
   end
 
@@ -45,7 +49,7 @@ class InvitationScanTest < Minitest::Test
     assert_equal "deterministic", result[:mode]
     assert_equal 3, result[:scanned_count]
     assert_equal 2, result[:invitation_count]
-    assert_equal %w[earlier later], result[:invitations].map { |item| item[:evidence_id] }
+    assert_equal %w[earlier later], (result[:invitations].map { |item| item[:evidence_id] })
     assert_equal "box", result[:mailbox_id]
   end
 

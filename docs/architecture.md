@@ -4,7 +4,7 @@ This document is normative for the repository. A change that violates these boun
 
 ## Product role
 
-Prism Mail is the mail-intelligence vertical in the Prism ecosystem. It converts authorized mail evidence into focused digest artifacts. It is not a mail server, not a generic AI runtime, not a delivery transport, and not a second control plane.
+Prism Mail is the mail-intelligence vertical in the Prism ecosystem. It converts authorized mail evidence into deterministic digest artifacts and evidence-backed mail signal artifacts. It is not a mail server, not a generic AI runtime, not a delivery transport, and not a second control plane.
 
 The architecture follows ports and adapters with dependencies directed inward:
 
@@ -17,12 +17,15 @@ mail provider adapters ──> source ports ──> application use cases ──
 
 Domain and application code may depend on focused ports and product-owned values. They must not depend on provider SDKs, HTTP clients, databases, job frameworks, AI vendors, or messaging transports.
 
+Deterministic mail-specific signal detectors are pure projections over normalized evidence. A detector may emit an evidence-backed artifact, but it does not mutate the message, advance a digest cursor, or decide where the artifact is delivered.
+
 ## Ownership boundary
 
 ### Prism Mail owns
 
 - mail-specific evidence and normalization semantics;
 - digest selection, grouping, ranking, and composition policy;
+- deterministic mail-specific signal detection and evidence-backed invitation artifacts;
 - the distinction between factual evidence, extracted actions, analysis, and presentation projections;
 - narration-ready scripts as artifacts derived from the same evidence as text digests;
 - focused ports for mail sources, AI analysis, persistence when justified, and Hub integration.
@@ -57,6 +60,7 @@ Clients render and interact with Hub capabilities. Telegram, Matrix, future 0x1 
 5. Vendor/model substitution cannot change product semantics. Provider-specific response shapes are normalized before they cross the AI port.
 6. A narration artifact is a presentation projection, not a new source of facts. It must remain traceable to the same digest evidence as the text projection.
 7. Failures remain failures. Missing source access, unavailable inference, invalid provider output, and failed Hub delivery are observable typed outcomes rather than empty digests.
+8. Signal detection is non-destructive. Emitting an immediate alert does not consume evidence or make the underlying message ineligible for a later digest.
 
 ## Extension rule
 
@@ -64,19 +68,19 @@ Add a provider, model, speech engine, persistence mechanism, or client transport
 
 ## Initial sequence
 
-The first production path should prove one boundary at a time:
+The first production path proves deterministic correctness before optional AI:
 
 ```text
 HQBase read-only source
         ↓
 canonical mail evidence
-        ↓
-remote inference through shared AI boundary
-        ↓
-text digest artifact
-        ↓
-Prism Hub
+        ├──> deterministic digest artifact
+        └──> deterministic mail signal artifact
+                    ↓
+                Prism Hub
 ```
+
+Prism Hub owns schedules, routing, delivery state, and client bindings. Optional AI may enrich later projections, but correctness and delivery truth do not depend on it.
 
 Only after this path is correct should the repository add Gmail/Proton adapters, narration, TTS, local inference, or additional delivery surfaces.
 

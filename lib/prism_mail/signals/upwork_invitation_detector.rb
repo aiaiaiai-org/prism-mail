@@ -34,9 +34,20 @@ module PrismMail
       private
 
       def sender_domain(sender)
-        address = sender[/<([^<>\s]+@[^<>\s]+)>/, 1] || sender.strip
-        match = address.match(/\A[^@\s]+@(?<domain>[^@\s]+)\z/)
-        match && match[:domain].downcase
+        address = sender_address(sender)
+        parts = address.split("@", -1)
+        return unless parts.length == 2 && parts.none?(&:empty?)
+        return unless address.split.length == 1
+
+        parts.last.downcase
+      end
+
+      def sender_address(sender)
+        value = sender.strip
+        opening = value.rindex("<")
+        return value unless opening && value.end_with?(">")
+
+        value[(opening + 1)...-1].strip
       end
 
       def upwork_domain?(domain)

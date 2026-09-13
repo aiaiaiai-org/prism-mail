@@ -71,14 +71,23 @@ module PrismMail
       end
 
       def normalize_provenance_entry(entry)
-        unless entry.is_a?(Hash) && entry.keys.sort == %i[rule source_field] &&
-               SOURCE_FIELDS.include?(entry[:source_field]) &&
-               entry[:rule].is_a?(String) && !entry[:rule].empty?
-          raise InvalidResponse, "invalid invitation provenance entry"
-        end
+        validate_provenance_entry(entry)
+        source_field = entry.fetch(:source_field)
+        rule = entry.fetch(:rule)
 
-        { evidence_id: evidence.id, source_field: entry[:source_field].to_s.freeze,
-          rule: entry[:rule].dup.freeze }.freeze
+        { evidence_id: evidence.id, source_field: source_field.to_s.freeze,
+          rule: rule.dup.freeze }.freeze
+      end
+
+      def validate_provenance_entry(entry)
+        valid_shape = entry.is_a?(Hash) && entry.keys.sort == %i[rule source_field]
+        raise InvalidResponse, "invalid invitation provenance entry" unless valid_shape
+
+        valid_source = SOURCE_FIELDS.include?(entry[:source_field])
+        valid_rule = entry[:rule].is_a?(String) && !entry[:rule].empty?
+        return if valid_source && valid_rule
+
+        raise InvalidResponse, "invalid invitation provenance entry"
       end
 
       def complete_provenance

@@ -44,12 +44,13 @@ class InvitationScanTest < Minitest::Test
     ]
 
     result = scan(items).to_h
+    evidence_ids = result[:invitations].map { |item| item[:evidence_id] }
 
     assert_equal "prism-mail.invitation-scan.v1", result[:schema_version]
     assert_equal "deterministic", result[:mode]
     assert_equal 3, result[:scanned_count]
     assert_equal 2, result[:invitation_count]
-    assert_equal %w[earlier later], (result[:invitations].map { |item| item[:evidence_id] })
+    assert_equal %w[earlier later], evidence_ids
     assert_equal "box", result[:mailbox_id]
   end
 

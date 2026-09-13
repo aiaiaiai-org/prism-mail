@@ -27,6 +27,16 @@ class HTTPTest < Minitest::Test
     PrismMail::Adapters::HQBase::HTTP.new(origin: "https://mail.test", token: "secret")
   end
 
+  def cli_env(**overrides)
+    {
+      "PRISM_MAIL_MAILBOX_ID" => "box",
+      "PRISM_MAIL_SINCE" => "2026-09-10T00:00:00Z",
+      "PRISM_MAIL_BEFORE" => "2026-09-11T00:00:00Z",
+      "HQBASE_ORIGIN" => "https://mail.test",
+      "HQBASE_ACCESS_TOKEN" => "secret"
+    }.merge(overrides.transform_keys(&:to_s))
+  end
+
   def test_status_mapping_does_not_echo_provider_body
     { "401" => PrismMail::AccessDenied, "403" => PrismMail::AccessDenied,
       "429" => PrismMail::RateLimited, "503" => PrismMail::SourceUnavailable,
@@ -53,13 +63,43 @@ class HTTPTest < Minitest::Test
     assert_equal "configuration_missing", JSON.parse(errors.string).fetch("error")
   end
 
-  def test_cli_end_to_end
-    env = { "PRISM_MAIL_MAILBOX_ID" => "box", "PRISM_MAIL_SINCE" => "2026-09-10T00:00:00Z",
-            "PRISM_MAIL_BEFORE" => "2026-09-11T00:00:00Z", "HQBASE_ORIGIN" => "https://mail.test",
-            "HQBASE_ACCESS_TOKEN" => "secret" }
+  def test_cli_digest_remains_default_operation
     output = StringIO.new
-    with_response { assert_equal 0, PrismMail::CLI.run(env: env, output: output, errors: StringIO.new) }
+    with_response { assert_equal 0, PrismMail::CLI.run(env: cli_env, output: output, errors: StringIO.new) }
     assert_equal "prism-mail.digest.v1", JSON.parse(output.string).fetch("schema_version")
     refute_includes output.string, "secret"
+  end
+
+  def test_cli_invitation_scan_worker_boundary
+    row = {
+      "id" => "invite-1", "mailboxId" => "box", "direction" => "inbound", "folder" => "inbox",
+      "subject" => "Invitation to interview: Swift Engineer", "fromAddress" => "Upwork <donotreply@upwork.com>",
+      "snippet" => "See https://www.upwork.com/jobs/invite-1", "receivedAt" => "2026-09-10T12:00:00Z"
+    }
+    output = StringIO.new
+    env = cli_env(PRISM_MAIL_OPERATION: "invitation_scan")
+
+    with_response(body: JSON.generate([row])) do
+      assert_equal 0, PrismMail::CLI.run(env: env, output: output, errors: StringIO.new)
+    end
+
+    payload = JSON.parse(output.string)
+    assert_equal "prism-mail.invitation-scan.v1", payload.fetch("schema_version")
+    assert_equal 1, payload.fetch("scanned_count")
+    assert_equal 1, payload.fetch("invitation_count")
+    assert_equal "invite-1", payload.fetch("invitations").first.fetch("evidence_id")
+    refute_includes output.string, "secret"
+  end
+
+  def test_cli_rejects_unknown_operation_without_source_output
+    output = StringIO.new
+    errors = StringIO.new
+    with_response do
+      assert_equal 1, PrismMail::CLI.run(
+        env: cli_env(PRISM_MAIL_OPERATION: "unknown"), output: output, errors: errors
+      )
+    end
+    assert_empty output.string
+    assert_equal "InvalidInput", JSON.parse(errors.string).fetch("error")
   end
 end

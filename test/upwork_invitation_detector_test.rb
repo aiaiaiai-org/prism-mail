@@ -64,7 +64,7 @@ class UpworkInvitationDetectorTest < Minitest::Test
     )
     digest = PrismMail::Application::BuildDigest.new(source: source).call(request: request).to_h
 
-    assert_equal ["message-1"], digest[:entries].map { |entry| entry[:evidence][:id] }
+    assert_equal ["message-1"], (digest[:entries].map { |entry| entry[:evidence][:id] })
   end
 
   def test_omits_unconfirmed_optional_fields
